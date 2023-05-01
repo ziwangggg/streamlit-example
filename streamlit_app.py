@@ -4,6 +4,63 @@ import math
 import pandas as pd
 import streamlit as st
 
+import streamlit as st
+import cv2
+import numpy as np
+from skimage.filters import threshold_local
+from skimage import measure
+
+
+def count_colonies(image):
+    # Convert image to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Apply adaptive thresholding to the grayscale image
+    T = threshold_local(gray, 21, offset = 10, method = "gaussian")
+    binary = (gray > T).astype("uint8") * 255
+    
+    # Find contours of the binary image
+    contours, hierarchy = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    
+    # Draw masks on top of the identified contours
+    masks = np.zeros_like(gray)
+    for i in range(len(contours)):
+        area = cv2.contourArea(contours[i])
+        if area > 50 and area < 500:
+            cv2.drawContours(masks, contours, i, (255, 255, 255), -1)
+    
+    # Count the number of identified colonies
+    labels = measure.label(masks)
+    num_colonies = len(np.unique(labels)) - 1
+    
+    # Overlay masks on top of the original image
+    overlay = cv2.bitwise_and(image, image, mask = masks)
+    
+    return num_colonies, overlay
+
+
+def main():
+    # Set title of the application
+    st.title("Bacteria Colony Counter")
+    
+    # Allow user to upload image
+    uploaded_file = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png"])
+    
+    if uploaded_file is not None:
+        # Read the uploaded image
+        image = cv2.imdecode(np.fromstring(uploaded_file.read(), np.uint8), 1)
+        
+        # Call the 'count_colonies' function
+        num_colonies, overlay = count_colonies(image)
+        
+        # Display the original image and the overlay
+        st.image(image, caption="Original Image", use_column_width=True)
+        st.image(overlay, caption="Overlay ({} colonies)".format(num_colonies), use_column_width=True)
+
+        if __name__ == '__main__':
+    main()
+
+
 """
 # Welcome to Streamlit!
 
@@ -16,23 +73,3 @@ In the meantime, below is an example of what you can do with just a few lines of
 """
 
 
-with st.echo(code_location='below'):
-    total_points = st.slider("Number of points in spiral", 1, 5000, 2000)
-    num_turns = st.slider("Number of turns in spiral", 1, 100, 9)
-
-    Point = namedtuple('Point', 'x y')
-    data = []
-
-    points_per_turn = total_points / num_turns
-
-    for curr_point_num in range(total_points):
-        curr_turn, i = divmod(curr_point_num, points_per_turn)
-        angle = (curr_turn + 1) * 2 * math.pi * i / points_per_turn
-        radius = curr_point_num / total_points
-        x = radius * math.cos(angle)
-        y = radius * math.sin(angle)
-        data.append(Point(x, y))
-
-    st.altair_chart(alt.Chart(pd.DataFrame(data), height=500, width=500)
-        .mark_circle(color='#0068c9', opacity=0.5)
-        .encode(x='x:Q', y='y:Q'))
