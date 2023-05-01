@@ -6,6 +6,15 @@ from skimage.filters import threshold_local
 from skimage import measure
 
 
+
+"""
+# Welcome to Colony Counter!
+
+This is a work in proress.
+In the meantime, you can test the UI by uploading an image of bacteria:
+"""
+
+
 def count_colonies(image):
     # Convert image to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -57,15 +66,5 @@ if __name__ == '__main__':
     main()
 
 
-"""
-# Welcome to Streamlit!
-
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:
-
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
-
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
 
 
