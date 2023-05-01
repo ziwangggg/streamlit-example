@@ -58,7 +58,9 @@ def main():
         st.image(overlay, caption="Overlay ({} colonies)".format(num_colonies), use_column_width=True)
 
         if __name__ == '__main__':
-    main()
+    
+ 
+main()
 
 
 """
