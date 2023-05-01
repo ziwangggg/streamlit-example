@@ -57,10 +57,9 @@ def main():
         st.image(image, caption="Original Image", use_column_width=True)
         st.image(overlay, caption="Overlay ({} colonies)".format(num_colonies), use_column_width=True)
 
-        if __name__ == '__main__':
-    
- 
-main()
+
+if __name__ == '__main__':
+    main()
 
 
 """
